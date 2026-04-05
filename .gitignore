@@ -1,0 +1,105 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+
+# Virtual Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgresql_data/
+
+# Results & Outputs
+backend/results/*.json
+outputs/
+*.json.bak
+
+# Secrets & Config
+.env.local
+.env.production
+*.pem
+*.key
+secrets/
+credentials.json
+
+# Docker
+docker-compose.override.yml
+
+# Airflow
+airflow/logs/
+airflow/*.db
+airflow/*.pid
+
+# Node (if frontend added)
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Archive & Docs
+archive/
+docs/CLEANUP_ANALYSIS.md
+docs/REAL_GOAL_ANALYSIS.md
+docs/AUTOMATION_PLAN.md
+docs/PRODUCTION_READINESS.md
+docs/DEVELOPMENT.md
+docs/bugbounty_agents_overview.md
+
+# Hardhat
+smart_contract/artifacts/
+smart_contract/cache/
+.dmux/

@@ -1,0 +1,49 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+pydantic[email]
+pydantic-settings
+
+# HTTP Client
+requests
+httpx
+
+# Database
+sqlalchemy>=2.0.0
+alembic
+psycopg2-binary
+python-dotenv
+
+# Security
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt<4.0.0
+python-multipart
+
+# Task Queue (optional)
+celery[redis]
+redis
+
+# Logging
+structlog
+python-json-logger
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# Code Quality
+black
+flake8
+mypy
+bandit
+safety
+
+# Blockchain
+web3
+py-solc-x
+
+# Monitoring
+prometheus-client
+

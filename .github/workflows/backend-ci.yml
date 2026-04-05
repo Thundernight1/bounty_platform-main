@@ -1,0 +1,78 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'frontend/**'
+      - 'smart_contract/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'frontend/**'
+      - 'smart_contract/**'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: bounty_platform_test
+          POSTGRES_USER: bounty_user
+          POSTGRES_PASSWORD: testpass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov black flake8
+
+      - name: Lint with Black
+        run: black --check backend tests bpcli
+
+      - name: Lint with Flake8
+        run: flake8 backend tests bpcli
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://bounty_user:testpass@localhost:5432/bounty_platform_test
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest tests/ -v --cov=backend --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}

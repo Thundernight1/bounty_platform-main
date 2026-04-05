@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bounty-platform"
+version = "0.1.0"
+description = "Bug bounty platform with attack surface, SCA, and smart-contract agents"
+authors = [{ name = "bounty_platform" }]
+requires-python = ">=3.9"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "requests",
+]
+
+[project.scripts]
+bp = "bp:main"
+
+[tool.setuptools]
+py-modules = ["bp"]
