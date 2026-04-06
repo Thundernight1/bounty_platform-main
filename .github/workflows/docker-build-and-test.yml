@@ -157,18 +157,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Fix permissions for Docker volumes
+        run: sudo chmod -R 777 .
+
       - name: Start services
         run: |
           cp .env.example .env
-          docker compose -f docker-compose.dev.yml up -d
+          docker compose -f docker-compose.dev.yml up -d --wait
 
       - name: Wait for backend to be healthy
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || (docker compose -f docker-compose.dev.yml logs backend && exit 1)
+          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
 
       - name: Run integration tests
         run: |
-          docker compose -f docker-compose.dev.yml exec -T backend pytest tests/ -v || (docker compose -f docker-compose.dev.yml logs backend && exit 1)
+          docker compose -f docker-compose.dev.yml exec -T backend pytest tests/ -v
 
       - name: Stop services
         if: always()
