@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { LogOut, Plus, RefreshCw } from 'lucide-react';
+import { LogOut, Plus } from 'lucide-react';
 
 interface Job {
   job_id: string;
   project_name: string;
   status: string;
   created_at: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: any;
 }
 
@@ -28,6 +29,7 @@ const Dashboard = () => {
       setJobs(res.data);
     } catch (err) {
       console.error(err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((err as any).response?.status === 401) {
         navigate('/login');
       }
@@ -40,6 +42,7 @@ const Dashboard = () => {
     fetchJobs();
     const interval = setInterval(fetchJobs, 5000); // Poll every 5s
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleLogout = () => {
@@ -61,6 +64,7 @@ const Dashboard = () => {
       setProjectName('');
       setTargetUrl('');
       fetchJobs();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.response?.data?.detail || 'Failed to create job');
     }

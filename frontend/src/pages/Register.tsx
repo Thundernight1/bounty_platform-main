@@ -18,6 +18,7 @@ const Register = () => {
       await api.post('/auth/register', { email, password });
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed');
     }

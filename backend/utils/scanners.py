@@ -28,6 +28,7 @@ async def _run_command(args: list[str]) -> Dict[str, Any]:
         "returncode": process.returncode,
     }
 
+
 async def run_zap_scan(url: str) -> Dict[str, Any]:
     """
     Runs OWASP ZAP scan asynchronously using asyncio.create_subprocess_exec.

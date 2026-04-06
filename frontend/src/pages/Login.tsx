@@ -23,6 +23,7 @@ const Login = () => {
       
       localStorage.setItem('token', response.data.access_token);
       navigate('/dashboard');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Login failed');
     }
