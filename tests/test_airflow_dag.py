@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import pytest
 import sys
+import os
 from unittest.mock import MagicMock
 
 # Mock airflow modules so tests run without airflow installed
@@ -33,7 +34,7 @@ def test_dag_module_loads():
 
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "airflow", "dags", "bounty_pipeline.py"),
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -51,7 +52,7 @@ def test_run_web_scan_function():
 
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "airflow", "dags", "bounty_pipeline.py"),
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -68,7 +69,7 @@ def test_run_contract_scan_function():
 
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "airflow", "dags", "bounty_pipeline.py"),
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -85,7 +86,7 @@ def test_calculate_score_function():
 
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "airflow", "dags", "bounty_pipeline.py"),
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -107,7 +108,7 @@ def test_store_on_chain_function():
 
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "airflow", "dags", "bounty_pipeline.py"),
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
