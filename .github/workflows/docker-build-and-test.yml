@@ -147,6 +147,7 @@ jobs:
 
       - name: Upload Trivy results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -159,7 +160,7 @@ jobs:
       - name: Start services
         run: |
           cp .env.example .env
-          docker compose -f docker-compose.yml up -d --wait
+          docker compose -f docker-compose.dev.yml up -d --wait
 
       - name: Wait for backend to be healthy
         run: |
@@ -167,8 +168,8 @@ jobs:
 
       - name: Run integration tests
         run: |
-          docker compose -f docker-compose.yml exec -T backend pytest tests/ -v
+          docker compose -f docker-compose.dev.yml exec -T backend pytest tests/ -v
 
       - name: Stop services
         if: always()
-        run: docker compose -f docker-compose.yml down
+        run: docker compose -f docker-compose.dev.yml down

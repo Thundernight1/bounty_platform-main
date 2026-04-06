@@ -20,3 +20,7 @@ bp = "bp:main"
 
 [tool.setuptools]
 py-modules = ["bp"]
+
+[tool.black]
+target-version = ['py311']
+line-length = 88
