@@ -27,16 +27,17 @@ def test_dag_module_loads():
     # Reset modules to allow fresh import
     if "airflow.dags.bounty_pipeline" in sys.modules:
         del sys.modules["airflow.dags.bounty_pipeline"]
-    
+
     # This should not raise
     import importlib
+
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py"
+        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    
+
     # Verify task functions exist
     assert callable(module.run_web_scan)
     assert callable(module.run_contract_scan)
@@ -47,9 +48,10 @@ def test_dag_module_loads():
 def test_run_web_scan_function():
     """Test the web scan task function"""
     import importlib
+
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py"
+        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -63,9 +65,10 @@ def test_run_web_scan_function():
 def test_run_contract_scan_function():
     """Test the contract scan task function"""
     import importlib
+
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py"
+        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -79,9 +82,10 @@ def test_run_contract_scan_function():
 def test_calculate_score_function():
     """Test the scoring function"""
     import importlib
+
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py"
+        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -89,7 +93,7 @@ def test_calculate_score_function():
     mock_ti = MagicMock()
     mock_ti.xcom_pull.side_effect = lambda task_ids: {
         "web_scan": {"vulnerabilities": ["v1", "v2"]},
-        "contract_scan": {"issues": ["i1"]}
+        "contract_scan": {"issues": ["i1"]},
     }[task_ids]
 
     context = {"ti": mock_ti}
@@ -100,9 +104,10 @@ def test_calculate_score_function():
 def test_store_on_chain_function():
     """Test the on-chain storage function"""
     import importlib
+
     spec = importlib.util.spec_from_file_location(
         "bounty_pipeline",
-        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py"
+        "/Users/mehmetzumrut/Desktop/Zumrut2/bounty_platform-main/airflow/dags/bounty_pipeline.py",
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

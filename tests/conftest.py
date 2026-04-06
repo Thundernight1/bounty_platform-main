@@ -18,12 +18,10 @@ os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 from backend.database import Base, get_db
 from backend.main import app
 
-
 # Create test database engine
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -51,6 +49,7 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     """
     Create a test client with database session override.
     """
+
     def override_get_db():
         try:
             yield db_session
@@ -71,15 +70,13 @@ def auth_headers(client: TestClient) -> dict:
     Register a test user and return auth headers with a valid Bearer token.
     """
     # Register
-    client.post("/auth/register", json={
-        "email": "test@example.com",
-        "password": "testpass123"
-    })
+    client.post(
+        "/auth/register", json={"email": "test@example.com", "password": "testpass123"}
+    )
     # Login
-    resp = client.post("/auth/token", data={
-        "username": "test@example.com",
-        "password": "testpass123"
-    })
+    resp = client.post(
+        "/auth/token", data={"username": "test@example.com", "password": "testpass123"}
+    )
     token = resp.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -89,6 +86,7 @@ def no_background_tasks(monkeypatch):
     """
     Prevent background tasks from running during tests.
     """
+
     async def _noop(job_id, request, db=None):
         return None
 
@@ -107,5 +105,5 @@ def sample_job_payload():
         "job_type": "attack_surface",
         "target_url": "https://example.com",
         "accept_terms": True,
-        "scope": ["example.com"]
+        "scope": ["example.com"],
     }

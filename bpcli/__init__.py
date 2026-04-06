@@ -12,11 +12,15 @@ def main():
     runp = sub.add_parser("run", help="Start a job")
     runp.add_argument("--api", default="http://localhost:8000", help="Backend API URL")
     runp.add_argument("--project", required=True, help="Project name")
-    runp.add_argument("--type", required=True, choices=["attack_surface", "sca", "smart_contract"])
+    runp.add_argument(
+        "--type", required=True, choices=["attack_surface", "sca", "smart_contract"]
+    )
     runp.add_argument("--url", help="Target URL (attack_surface) or repo path (sca)")
     runp.add_argument("--source", help="Solidity source file for smart_contract")
     runp.add_argument("--scope", nargs="*", default=[], help="Allowed domains/repos")
-    runp.add_argument("--no-accept", action="store_true", help="Do not accept terms (will fail)")
+    runp.add_argument(
+        "--no-accept", action="store_true", help="Do not accept terms (will fail)"
+    )
 
     args = parser.parse_args()
 
@@ -43,7 +47,9 @@ def main():
 
     if args.type == "smart_contract":
         if not args.source:
-            print("Error: --source .sol file required for smart_contract", file=sys.stderr)
+            print(
+                "Error: --source .sol file required for smart_contract", file=sys.stderr
+            )
             sys.exit(2)
         payload["contract_source"] = open(args.source, "r", encoding="utf-8").read()
 

@@ -40,7 +40,9 @@ def test_invalid_token_rejected(client: TestClient):
 
 def test_expired_or_malformed_token(client: TestClient):
     """Test that malformed tokens are rejected"""
-    headers = {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.payload"}
+    headers = {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.payload"
+    }
     resp = client.get("/jobs", headers=headers)
     assert resp.status_code == 401
 
@@ -54,10 +56,10 @@ def test_health_check_no_auth_required(client: TestClient):
 
 def test_auth_register_no_auth_required(client: TestClient):
     """Test that /auth/register does not require authentication"""
-    resp = client.post("/auth/register", json={
-        "email": "guard_test@example.com",
-        "password": "password123"
-    })
+    resp = client.post(
+        "/auth/register",
+        json={"email": "guard_test@example.com", "password": "password123"},
+    )
     assert resp.status_code == 200
 
 
@@ -75,21 +77,19 @@ def test_job_ownership_enforced(client: TestClient, auth_headers: dict):
         "job_type": "attack_surface",
         "target_url": "https://example.com",
         "accept_terms": True,
-        "scope": ["example.com"]
+        "scope": ["example.com"],
     }
     resp = client.post("/jobs", json=payload, headers=auth_headers)
     assert resp.status_code == 200
     job_id = resp.json()["job_id"]
 
     # Register and login as user 2
-    client.post("/auth/register", json={
-        "email": "user2@example.com",
-        "password": "pass2"
-    })
-    login_resp = client.post("/auth/token", data={
-        "username": "user2@example.com",
-        "password": "pass2"
-    })
+    client.post(
+        "/auth/register", json={"email": "user2@example.com", "password": "pass2"}
+    )
+    login_resp = client.post(
+        "/auth/token", data={"username": "user2@example.com", "password": "pass2"}
+    )
     token2 = login_resp.json()["access_token"]
     headers2 = {"Authorization": f"Bearer {token2}"}
 

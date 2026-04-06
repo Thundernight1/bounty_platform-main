@@ -15,6 +15,19 @@ import shutil
 from typing import Dict, Any
 
 
+async def _run_command(args: list[str]) -> Dict[str, Any]:
+    process = await asyncio.create_subprocess_exec(
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await process.communicate()
+    return {
+        "stdout": stdout.decode(errors="ignore"),
+        "stderr": stderr.decode(errors="ignore"),
+        "returncode": process.returncode,
+    }
+
 async def run_zap_scan(url: str) -> Dict[str, Any]:
     """
     Runs OWASP ZAP scan asynchronously using asyncio.create_subprocess_exec.
@@ -24,7 +37,9 @@ async def run_zap_scan(url: str) -> Dict[str, Any]:
     if zap_cli_path:
         try:
             process = await asyncio.create_subprocess_exec(
-                zap_cli_path, "quick-scan", url,
+                zap_cli_path,
+                "quick-scan",
+                url,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -32,18 +47,22 @@ async def run_zap_scan(url: str) -> Dict[str, Any]:
             return {
                 "tool": "owasp_zap",
                 "summary": "ZAP quick scan completed",
-                "stdout": stdout.decode(errors='ignore'),
-                "stderr": stderr.decode(errors='ignore'),
+                "stdout": stdout.decode(errors="ignore"),
+                "stderr": stderr.decode(errors="ignore"),
                 "returncode": process.returncode,
             }
         except Exception as exc:
-            return {"tool": "owasp_zap", "summary": f"ZAP failed: {exc}", "vulnerabilities": []}
+            return {
+                "tool": "owasp_zap",
+                "summary": f"ZAP failed: {exc}",
+                "vulnerabilities": [],
+            }
     else:
         return {
             "tool": "owasp_zap",
             "summary": "OWASP ZAP not installed - skipping web scan",
             "vulnerabilities": [],
-            "warning": "Install ZAP for real vulnerability scanning: apt-get install zaproxy"
+            "warning": "Install ZAP for real vulnerability scanning: apt-get install zaproxy",
         }
 
 
@@ -56,13 +75,17 @@ async def run_nuclei_scan(url: str) -> Dict[str, Any]:
     if nuclei:
         try:
             process = await asyncio.create_subprocess_exec(
-                nuclei, "-u", url, "-json", "-silent",
+                nuclei,
+                "-u",
+                url,
+                "-json",
+                "-silent",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await process.communicate()
             findings = []
-            for line in stdout.decode(errors='ignore').splitlines():
+            for line in stdout.decode(errors="ignore").splitlines():
                 try:
                     findings.append(json.loads(line))
                 except Exception:
@@ -74,13 +97,17 @@ async def run_nuclei_scan(url: str) -> Dict[str, Any]:
                 "returncode": process.returncode,
             }
         except Exception as exc:
-            return {"tool": "nuclei", "summary": f"nuclei failed: {exc}", "findings": []}
+            return {
+                "tool": "nuclei",
+                "summary": f"nuclei failed: {exc}",
+                "findings": [],
+            }
     else:
         return {
             "tool": "nuclei",
             "summary": "nuclei not installed - skipping CVE scan",
             "findings": [],
-            "warning": "Install nuclei for CVE scanning: go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest"
+            "warning": "Install nuclei for CVE scanning: go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest",
         }
 
 
@@ -103,7 +130,11 @@ async def run_mythril_scan(source_code: str) -> Dict[str, Any]:
                 "returncode": completed["returncode"],
             }
         except Exception as exc:
-            return {"tool": "mythril", "summary": f"Mythril failed: {exc}", "issues": []}
+            return {
+                "tool": "mythril",
+                "summary": f"Mythril failed: {exc}",
+                "issues": [],
+            }
         finally:
             try:
                 os.unlink(tmp_path)
@@ -113,16 +144,18 @@ async def run_mythril_scan(source_code: str) -> Dict[str, Any]:
         # Basic heuristic analysis
         issues = []
         if "call.value" in source_code:
-            issues.append({
-                "id": "PATTERN_DETECTED",
-                "description": "call.value pattern detected - review for reentrancy (install Mythril for proper analysis)",
-                "severity": "info",
-            })
+            issues.append(
+                {
+                    "id": "PATTERN_DETECTED",
+                    "description": "call.value pattern detected - review for reentrancy (install Mythril for proper analysis)",
+                    "severity": "info",
+                }
+            )
         return {
             "tool": "mythril",
             "summary": "Mythril not installed - basic heuristic only",
             "issues": issues,
-            "warning": "Install Mythril for real smart contract analysis: pip install mythril"
+            "warning": "Install Mythril for real smart contract analysis: pip install mythril",
         }
 
 
@@ -147,15 +180,26 @@ async def run_sca_scan(path_or_repo: str) -> Dict[str, Any]:
                 "returncode": completed["returncode"],
             }
         except Exception as exc:
-            return {"tool": "osv-scanner", "summary": f"OSV failed: {exc}", "results": {}}
+            return {
+                "tool": "osv-scanner",
+                "summary": f"OSV failed: {exc}",
+                "results": {},
+            }
 
     from pathlib import Path
-    manifests = ["requirements.txt", "package.json", "pyproject.toml", "Gemfile", "pom.xml"]
+
+    manifests = [
+        "requirements.txt",
+        "package.json",
+        "pyproject.toml",
+        "Gemfile",
+        "pom.xml",
+    ]
     found = [m for m in manifests if (Path(path_or_repo) / m).exists()]
     return {
         "tool": "osv-scanner",
         "summary": "osv-scanner not installed - skipping SCA",
         "manifests_found": found,
         "vulnerabilities": [],
-        "warning": "Install osv-scanner for dependency vulnerability scanning: go install github.com/google/osv-scanner/cmd/osv-scanner@latest"
+        "warning": "Install osv-scanner for dependency vulnerability scanning: go install github.com/google/osv-scanner/cmd/osv-scanner@latest",
     }

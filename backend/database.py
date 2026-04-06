@@ -13,7 +13,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load from env or default
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/bounty_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@localhost/bounty_db"
+)
 
 # Create engine
 # For SQLite, we need to enable check_same_thread=False
@@ -21,12 +23,11 @@ if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         DATABASE_URL,
         connect_args={"check_same_thread": False},
-        echo=os.getenv("DEBUG", "False").lower() == "true"
+        echo=os.getenv("DEBUG", "False").lower() == "true",
     )
 else:
     engine = create_engine(
-        DATABASE_URL,
-        echo=os.getenv("DEBUG", "False").lower() == "true"
+        DATABASE_URL, echo=os.getenv("DEBUG", "False").lower() == "true"
     )
 
 # Create SessionLocal class
@@ -54,4 +55,5 @@ def init_db() -> None:
     Creates all tables defined in models.
     """
     from backend.models import Job  # Import models here to avoid circular imports
+
     Base.metadata.create_all(bind=engine)

@@ -13,10 +13,7 @@ from backend.database import Base
 
 def test_user_model_creation(db_session: Session):
     """Test creating a User model instance"""
-    user = User(
-        email="model_test@example.com",
-        hashed_password="fakehash"
-    )
+    user = User(email="model_test@example.com", hashed_password="fakehash")
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
@@ -124,7 +121,7 @@ def test_scan_history_creation(db_session: Session):
     history = ScanHistory(
         job_id="history-test-001",
         action="scan_started",
-        details={"target": "https://example.com"}
+        details={"target": "https://example.com"},
     )
     db_session.add(history)
     db_session.commit()
@@ -141,7 +138,7 @@ def test_job_with_result_json(db_session: Session):
     """Test storing JSON result in job"""
     result_data = {
         "web_scan": {"vulnerabilities": [{"id": "XSS-001", "severity": "high"}]},
-        "nuclei": {"findings": []}
+        "nuclei": {"findings": []},
     }
     job = Job(
         id="json-test-001",
@@ -149,7 +146,7 @@ def test_job_with_result_json(db_session: Session):
         job_type=JobType.ATTACK_SURFACE,
         status=JobStatus.COMPLETED,
         accept_terms=True,
-        result=result_data
+        result=result_data,
     )
     db_session.add(job)
     db_session.commit()
