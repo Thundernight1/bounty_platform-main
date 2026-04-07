@@ -57,10 +57,10 @@ jobs:
           pip install pytest pytest-cov black flake8
 
       - name: Lint with Black
-        run: black --check backend tests bpcli
+        run: black --check backend tests scripts
 
       - name: Lint with Flake8
-        run: flake8 backend tests bpcli
+        run: flake8 backend tests scripts
 
       - name: Run tests
         env:
