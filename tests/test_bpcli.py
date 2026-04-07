@@ -1,15 +1,18 @@
 """
-Tests for the bpcli (Bug Bounty Platform CLI) module.
+Tests for the CLI (Bug Bounty Platform CLI) module.
 """
 
 from __future__ import annotations
 
+import os
 import pytest
 import sys
 from unittest.mock import patch, MagicMock
 from io import StringIO
 
-from bpcli import main
+# Add scripts directory to path so we can import bp module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+from bp import main
 
 
 def test_cli_run_attack_surface_missing_url():

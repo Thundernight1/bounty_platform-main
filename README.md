@@ -1,206 +1,144 @@
-# Blockchain Bug Bounty Platform (Prototype)
+# Blockchain Bug Bounty Platform
 
-This repository contains a minimal, working prototype of a bug bounty platform that orchestrates basic security scans for web apps and smart contracts, and demonstrates a simple workflow for storing and reporting results. It is intended as a starting point and reference architecture rather than a production-ready system.
-
-If you prefer the original Turkish README, the previous content has been consolidated and updated below in English with accurate commands and current structure.
+A full-stack bug bounty platform that orchestrates security scans for web applications and smart contracts, with blockchain-based bounty payout logic.
 
 ## Overview
 
-- Backend: FastAPI application exposing a small REST API to create scan jobs and fetch their status/results. Background tasks dispatch to simple scanner helpers that try real tools if installed, or return mock results.
-- Frontend: Simple HTML page to submit jobs and view status.
-- CLI: `bp` console command to start jobs from the terminal.
-- Orchestration: Example Airflow DAG illustrating how a multi-step pipeline could be orchestrated.
-- Smart contract: Minimal Solidity contract for bounty payout logic and a Python script for deployment.
+- **Backend**: FastAPI REST API for creating scan jobs, managing results, and user authentication.
+- **Frontend**: React + TypeScript SPA with login, registration, and dashboard views.
+- **Smart Contract**: Solidity contract on Ethereum for committee-based bounty approvals and payouts.
+- **CLI**: `bp` command-line tool to submit and monitor scan jobs.
+- **Orchestration**: Apache Airflow DAG for multi-step scan pipelines.
+- **CI/CD**: GitHub Actions pipelines for backend, frontend, smart contract, Docker, and security scanning.
 
 ## Tech Stack
 
-- Language: Python 3.9+
-- Frameworks/Libraries: FastAPI, Pydantic, Uvicorn, Requests
-- Optional tooling: Apache Airflow (for DAG example), OWASP ZAP, nuclei, Mythril, osv-scanner
-- Smart contracts: Solidity (example contract)
-- Package/Build: pyproject.toml (setuptools), requirements.txt
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.11, FastAPI, SQLAlchemy, Alembic |
+| Frontend | React 18, TypeScript, Vite |
+| Smart Contract | Solidity 0.8.20, Hardhat, OpenZeppelin |
+| Database | PostgreSQL 15, Redis 7 |
+| Infrastructure | Docker, Docker Compose, Nginx |
+| CI/CD | GitHub Actions |
 
 ## Project Structure
 
 ```
 bounty_platform/
 ├── backend/
-│   ├── main.py                  # FastAPI app (endpoints + background job)
-│   ├── utils/
-│   │   └── scanners.py          # Scanner helpers (ZAP, nuclei, Mythril, SCA) with mock fallbacks
-│   └── results/                 # Job results written as JSON
+│   ├── main.py                  # FastAPI app (endpoints + background jobs)
+│   ├── models.py                # SQLAlchemy models
+│   ├── database.py              # Database connection & session
+│   ├── logger.py                # Logging configuration
+│   └── utils/
+│       └── scanners.py          # Scanner helpers (ZAP, nuclei, Mythril, SCA)
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx              # Main app with routing
+│   │   ├── pages/               # Login, Register, Dashboard
+│   │   └── api.ts               # Backend API client
+│   ├── Dockerfile               # Frontend container (nginx)
+│   └── package.json
+├── smart_contract/
+│   ├── contracts/
+│   │   └── BugBounty.sol        # Bounty payout contract
+│   ├── test/                    # Hardhat test suite (11 tests)
+│   ├── scripts/
+│   │   └── deploy.js            # Hardhat deployment script
+│   └── hardhat.config.js
 ├── airflow/
 │   └── dags/
-│       └── bounty_pipeline.py   # Example Airflow DAG (placeholders)
-├── smart_contract/
-│   └── BugBounty.sol            # Minimal example bounty contract (Solidity)
+│       └── bounty_pipeline.py   # Example Airflow DAG
 ├── scripts/
-│   └── deploy_contract.py       # Example script to compile/deploy the contract
-├── frontend/
-│   └── index.html               # Very simple HTML/JS form to submit jobs
-├── bp.py                        # CLI entrypoint implementation (installed as `bp`)
-├── pyproject.toml               # Package metadata + console_scripts entry point
-├── requirements.txt             # Runtime dependencies
-└── README.md                    # This file
+│   └── bp.py                    # CLI tool implementation
+├── tests/                       # Backend + CLI test suite
+├── alembic/                     # Database migrations
+├── .github/workflows/           # CI/CD pipelines
+├── Dockerfile                   # Backend container
+├── docker-compose.yml           # Production stack
+├── docker-compose.dev.yml       # Development stack
+├── requirements.txt             # Python dependencies
+└── pyproject.toml               # Python project config
 ```
 
-## Requirements
+## Quick Start
 
-- Python 3.9 or newer
-- pip / venv (or your preferred environment manager)
-- Optional: Docker/Podman if you containerize yourself (not provided here)
-- Optional external tools for real scans (otherwise mock outputs are returned):
-  - zap-cli (OWASP ZAP CLI)
-  - nuclei
-  - mythril
-  - osv-scanner
-- Optional: Apache Airflow to run the DAG example
+### Prerequisites
 
-## Installation
+- Python 3.11+
+- Node.js 20+
+- Docker & Docker Compose
 
-Create and activate a virtual environment, then install dependencies:
+### 1) Backend API
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Optional: install as a package to get the `bp` CLI in PATH
-pip install -e .
-```
-
-## Running
-
-### 1) Backend API
-
-Run the FastAPI application with Uvicorn (recommended):
-
-```bash
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
-# or
-python -m uvicorn backend.main:app --reload
 ```
 
-The API will listen on http://localhost:8000
+API: http://localhost:8000 | Health: http://localhost:8000/health
 
-Endpoints:
-- POST /jobs
-- GET /jobs/{job_id}
-
-See API section below for payloads and responses. Results are written to backend/results/<job_id>.json
-
-### 2) Frontend (static HTML)
-
-Serve the static HTML for quick local testing:
+### 2) Frontend
 
 ```bash
-python -m http.server 8080 --directory frontend
+cd frontend
+npm install
+npm run dev
 ```
 
-Then open http://localhost:8080/index.html in your browser. The page will call the backend at http://localhost:8000 by default.
+Opens at http://localhost:5173
 
-### 3) CLI (`bp`)
-
-The CLI provides a convenient way to start jobs from the terminal. Ensure you installed the package with `pip install -e .` (see Installation).
-
-Examples:
+### 3) Smart Contracts
 
 ```bash
-# Attack surface job (web scanning)
-bp run --project demo --type attack_surface --url https://example.com --scope example.com
-
-# SCA job (local repo path)
-bp run --project demo --type sca --url /path/to/repo
-
-# Smart contract job (Solidity source file)
-bp run --project demo --type smart_contract --source smart_contract/BugBounty.sol
+cd smart_contract
+npm install
+npx hardhat test       # Run 11 tests
+npx hardhat compile    # Compile contracts
 ```
 
-Notes:
-- The CLI sends POST /jobs to the backend URL (default http://localhost:8000). Override with --api if needed.
-- For legal/ethical guardrails the backend requires accept_terms=true; the CLI sets it by default unless you pass --no-accept (which will cause the request to fail).
-
-### 4) Airflow (optional)
-
-The example DAG at airflow/dags/bounty_pipeline.py is provided for illustration. It contains placeholder PythonOperators that print messages. To use it:
-
-1. Install and initialize Airflow in your environment (not included in requirements.txt).
-2. Point Airflow's DAG folder to airflow/dags or copy the file there.
-3. Trigger the bounty_pipeline DAG from the Airflow UI or CLI.
-
-### 5) Contract deployment (optional)
-
-scripts/deploy_contract.py shows how you might compile and deploy the example Solidity contract using Web3.py and py-solc-x. Before running it you must:
-
-- Install dependencies: `pip install web3 py-solc-x`
-- Set environment variables: RPC_URL and DEPLOYER_PRIVATE_KEY
-
-Example:
+### 4) Docker (Full Stack)
 
 ```bash
-export RPC_URL="https://sepolia.infura.io/v3/<YOUR_KEY>"
-export DEPLOYER_PRIVATE_KEY="0xabc123..."
-python scripts/deploy_contract.py
+cp .env.example .env
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-## API
+### 5) CLI
 
-### POST /jobs
-Create a new scan job.
+```bash
+pip install -e .
+bp run --project demo --type attack_surface --url https://example.com
+bp status <job_id>
+```
 
-Body (JSON):
-- project_name: string
-- job_type: one of ["attack_surface", "sca", "smart_contract"]
-- accept_terms: boolean (must be true)
-- target_url: string (required for attack_surface and sca; for sca, should be a local repository path)
-- contract_source: string (required for smart_contract; Solidity source code)
-- scope: [string] optional; allowed hostnames for attack_surface jobs
+## API Endpoints
 
-Response: JobStatus
-- job_id: string
-- project_name: string
-- status: "pending" | "running" | "finished"
-- created_at, started_at, finished_at: timestamps (UTC)
-- result: object | null (populated when finished; also written to backend/results)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| POST | `/jobs` | Create a scan job |
+| GET | `/jobs/{job_id}` | Get job status/results |
 
-### GET /jobs/{job_id}
-Fetch job status and, once finished, the result.
+## CI/CD Pipelines
+
+All pipelines run on every push to `main`:
+
+| Pipeline | What it does |
+|----------|-------------|
+| Backend CI | Python linting (flake8, black) + pytest |
+| Frontend CI | ESLint + TypeScript build |
+| Smart Contract CI | Hardhat compile + test |
+| Docker Build & Test | Build images, integration tests |
+| Security Scanning | Trivy vulnerability scanning |
 
 ## Environment Variables
 
-- API_KEY (optional): if set, the backend requires requests to POST /jobs to include header `X-API-Key: <API_KEY>`.
-- SLACK_WEBHOOK_URL (optional): if set, the backend posts a short summary when a job completes.
-- RPC_URL and DEPLOYER_PRIVATE_KEY (optional): used by scripts/deploy_contract.py.
-
-## Tests
-
-This repo includes a minimal pytest suite.
-
-Run locally:
-
-```bash
-pip install -r requirements.txt
-pytest -q
-```
-
-Notes:
-- Tests mock background scanning to keep runs fast and side-effect free.
-- Coverage is not yet enforced globally; new features should aim for ~80% coverage for changed files.
-- CI workflow is not included yet; contributions welcome.
-
-## Development Notes
-
-- Scanner helpers in backend/utils/scanners.py attempt to call real tools when available; otherwise, they return mock findings so the flow remains usable without heavy setup.
-- For attack_surface jobs, a basic scope check is applied: target_url must match or be a subdomain of one of the provided scope entries.
-- Results are written to backend/results as JSON files, and also served back by GET /jobs/{job_id}.
+See `.env.example` for all available configuration options.
 
 ## License
 
-- TODO: Add a license file (e.g., MIT). Until then, usage is at your own discretion for evaluation purposes only.
-
-## Roadmap / TODOs
-
-- Define <FEATURE_NAME> with a clear user story and acceptance criteria, then implement with TDD and add coverage (~80%+ for changed files).
-- Replace placeholder scan calls with robust integrations to ZAP, nuclei, Mythril, osv-scanner, and real Web3 interactions.
-- Add authentication/authorization and multi-tenant data separation.
-- Improve UI with a modern framework (React/Vue) and richer reporting.
-- Add job queue (Celery/RQ) for long-running scans and better resilience.
+MIT — see [LICENSE](LICENSE) for details.
