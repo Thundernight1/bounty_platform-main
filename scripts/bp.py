@@ -79,9 +79,7 @@ def main():
     # Default command logic: if no command is given, or an unknown command is given,
     # assume 'run' unless it's a help flag.
     argv = sys.argv[1:]
-    if not argv or (
-        argv[0] not in ("run", "status", "-h", "--help")
-    ):
+    if not argv or (argv[0] not in ("run", "status", "-h", "--help")):
         argv.insert(0, "run")
 
     args = parser.parse_args(argv)
