@@ -46,4 +46,3 @@ py-solc-x
 
 # Monitoring
 prometheus-client
-

@@ -8,7 +8,18 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
+    curl \
+    unzip \
+    wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Nuclei
+RUN wget -q https://github.com/projectdiscovery/nuclei/releases/download/v3.2.0/nuclei_3.2.0_linux_amd64.zip \
+    && unzip nuclei_3.2.0_linux_amd64.zip "nuclei" \
+    && mv nuclei /usr/local/bin/ \
+    && chmod +x /usr/local/bin/nuclei \
+    && rm nuclei_3.2.0_linux_amd64.zip
+
 
 # Copy requirements first for better caching
 COPY requirements.txt .
@@ -31,7 +42,18 @@ RUN apt-get update && apt-get install -y \
 
 # Copy Python dependencies from builder
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+COPY --from=builder /usr/local/bin/nuclei /usr/local/bin/nuclei
+
+# Download Nuclei Templates
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget -q https://github.com/projectdiscovery/nuclei-templates/archive/refs/heads/main.zip && \
+    unzip -q main.zip && \
+    mv nuclei-templates-main /app/nuclei-templates && \
+    rm main.zip && \
+    apt-get remove -y wget unzip && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Copy application code
 COPY . .

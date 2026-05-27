@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://bounty-backend-809635270587.us-central1.run.app';
 
 const api = axios.create({
   baseURL: API_URL,

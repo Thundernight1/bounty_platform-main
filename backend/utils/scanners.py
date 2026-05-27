@@ -79,6 +79,8 @@ async def run_nuclei_scan(url: str) -> Dict[str, Any]:
                 nuclei,
                 "-u",
                 url,
+                "-t",
+                "/app/nuclei-templates",
                 "-json",
                 "-silent",
                 stdout=asyncio.subprocess.PIPE,
@@ -91,9 +93,14 @@ async def run_nuclei_scan(url: str) -> Dict[str, Any]:
                     findings.append(json.loads(line))
                 except Exception:
                     pass
+            
+            summary_msg = f"nuclei completed, {len(findings)} findings"
+            if len(findings) == 0:
+                summary_msg += f" (stderr: {stderr.decode(errors='ignore')[:100]})"
+                
             return {
                 "tool": "nuclei",
-                "summary": f"nuclei completed, {len(findings)} findings",
+                "summary": summary_msg,
                 "findings": findings,
                 "returncode": process.returncode,
             }

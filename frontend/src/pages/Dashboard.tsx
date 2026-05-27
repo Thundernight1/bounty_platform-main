@@ -152,8 +152,18 @@ const Dashboard = () => {
                     <td>
                       {job.result ? (
                         <div style={{ fontSize: '0.8rem' }}>
-                          {job.result.web_scan && `Web: ${job.result.web_scan.vulnerabilities?.length || 0} `}
-                          {job.result.nuclei && `Nuclei: ${job.result.nuclei.findings?.length || 0}`}
+                          <div>
+                            <b>Web:</b> {job.result.web_scan?.vulnerabilities?.length || 0} finding(s)
+                            <div style={{ color: '#888', fontSize: '0.75rem', marginBottom: '4px' }}>
+                              {job.result.web_scan?.summary || '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <b>Nuclei:</b> {job.result.nuclei?.findings?.length || 0} finding(s)
+                            <div style={{ color: '#888', fontSize: '0.75rem', wordBreak: 'break-all' }}>
+                              {job.result.nuclei?.summary || '-'}
+                            </div>
+                          </div>
                         </div>
                       ) : '-'}
                     </td>
